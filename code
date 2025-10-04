@@ -1,0 +1,100 @@
+// -------------------------------------------------------------
+//  Smart Door System with Servo, Ultrasonic Sensor, LED & Button
+//  - Detects approaching person using ultrasonic sensor
+//  - Opens door via servo motor or by button press
+//  - Turns LED on/off as a visual indicator
+// -------------------------------------------------------------
+
+#include <Servo.h>          // Library to control the servo motor
+
+// ----- Servo setup -----
+int servoPin = 6;           // Servo signal pin connected to digital pin 6
+Servo Servo1;               // Servo object to control the door
+
+// ----- Ultrasonic Sensor pins -----
+int trigPin = 4;            // TRIG pin of ultrasonic sensor
+int echoPin = 3;            // ECHO pin of ultrasonic sensor
+float duration_us, distance_cm;  // Variables for pulse duration and calculated distance
+
+// ----- LED indicator -----
+const int LED_PIN = 2;      // LED connected to digital pin 2
+
+// ----- Push Button -----
+const int BUTTON_PIN = 7;   // Button connected to digital pin 7
+int buttonState = 0;        // Variable to store current button state
+
+// -------------------------------------------------------------
+//  SETUP: runs once when the Arduino is powered on or reset
+// -------------------------------------------------------------
+void setup() 
+{
+  Serial.begin(9600);                     // Start serial monitor at 9600 baud
+
+  pinMode(trigPin, OUTPUT);                // Set TRIG pin as output
+  pinMode(echoPin, INPUT);                 // Set ECHO pin as input
+
+  Servo1.attach(servoPin);                 // Attach servo motor to pin 6
+
+  pinMode(LED_PIN, OUTPUT);                // Set LED pin as output
+  pinMode(BUTTON_PIN, INPUT_PULLUP);       // Set button pin as input with internal pull-up resistor
+}
+
+// -------------------------------------------------------------
+//  LOOP: runs continuously after setup()
+// -------------------------------------------------------------
+void loop() 
+{
+  // ---- Check button state ----
+  buttonState = digitalRead(BUTTON_PIN);    // Read HIGH or LOW
+  Serial.println(buttonState);              // Print button state to Serial Monitor
+
+  // ---- If button is pressed, open the door manually ----
+  if (buttonState == HIGH)
+  {
+       digitalWrite(LED_PIN, HIGH);         // Turn LED on as indicator
+       
+       Servo1.write(180);                   // Rotate servo to open door
+       delay(6000);                          // Keep door open for 6 seconds
+       Servo1.write(0);                     // Close the door
+       delay(3000);                          // Wait 3 seconds before next action
+       
+       digitalWrite(LED_PIN, LOW);          // Turn LED off
+       exit;                                // Exit loop after button-triggered action
+  }
+
+  // ---- Trigger ultrasonic sensor to measure distance ----
+  digitalWrite(trigPin, HIGH);              // Send a 10µs HIGH pulse to TRIG
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration_us = pulseIn(echoPin, HIGH);     // Measure pulse from ECHO pin
+  distance_cm = 0.017 * duration_us;        // Convert time to distance (cm)
+
+  Serial.print("Distance: ");
+  Serial.print(distance_cm);
+  Serial.println(" cm");
+
+  delay(500);                               // Short delay for stability
+
+  // ---- Turn LED ON if someone is within 15 cm ----
+  if (distance_cm <= 15)
+  {
+      digitalWrite(LED_PIN, HIGH);
+
+      // ---- If someone gets within 5 cm, open the door automatically ----
+      if (distance_cm <= 5)
+      {
+        Servo1.write(360);                  // Open door (servo rotates)
+        delay(6000);                          // Keep door open for 6 seconds
+        Servo1.write(0);                     // Close the door
+        delay(2000);                          // Short wait before next action
+        digitalWrite(LED_PIN, LOW);          // Turn LED off after door closes
+      }
+  }
+
+  // ---- Turn LED OFF when no one is near (distance ≥ 30 cm) ----
+  if (distance_cm >= 30)
+  {
+    digitalWrite(LED_PIN, LOW);
+  }
+}
