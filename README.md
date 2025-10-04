@@ -6,11 +6,13 @@ Design:
 <img width="1113" height="508" alt="image" src="https://github.com/user-attachments/assets/7f037b4f-3a04-49dd-9a6c-f41efe721d46" />
 
 Components:
+Servo 9 – A servo motor that physically opens and closes the door.
 
-Servo 9: A servo motor that physically opens and closes the door.
-Ultrasonic Sensor: Measures the distance of an approaching object by emitting ultrasonic waves and timing the                     returning echo.
-Push Button: Provides a manual control to open or close the door at any time.
-LED Indicator: Lights up whenever the door opens and turns off after the door closes.
+Ultrasonic Sensor – Detects distance by sending ultrasonic waves and timing the returning echo.
+
+Push Button – Allows manual control to open or close the door.
+
+LED Indicator – Lights up when the door opens and turns off once it closes.
 --------------------------------------------------------------------------------------------------------------
 How It Works
 1. Idle State: Door stays closed, LED is off.
@@ -18,6 +20,8 @@ How It Works
 3. Door Opens Automatically: If distance ≤ 0.05 m, the servo motor rotates to open the door.
 4. Door Closes: After a short delay, the servo returns to the closed position and the LED turns off.
 5. Manual Override: The push button can trigger the door to open/close at any time.
+<img width="975" height="1030" alt="image" src="https://github.com/user-attachments/assets/afa84e74-d358-48ad-9158-bf83bf4cd61e" />
+
 --------------------------------------------------------------------------------------------------------------
 Distance Calculation
 
